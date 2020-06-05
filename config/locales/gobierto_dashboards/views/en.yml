@@ -44,6 +44,42 @@ en:
           tenders_for: tenders for a total amount of
         tender_amount: Tender Amount
         title: Contracts and tenders
+      costs:
+        activities: Activities
+        cost_direct: Direct cost
+        cost_indirect: Indirect cost
+        cost_inhabitant: Cost / inhabitant
+        cost_per_inhabitant: Cost per inhabitant
+        coverage: Cobertura
+        description: The %{entity_name} is responsible for providing certain services
+          to citizens. The cost of the services is covered directly (fees) or indirectly
+          (budget lines). In this visualization, you can explore the services, their
+          costs, and evolution, the income ...
+        detail: Detail
+        distribution: Distribution of costs by area
+        home: Home
+        income: Income
+        inhabitant: Habitant
+        item:
+          competence: Competence
+          description: Description
+          equipments: Equipments
+          external_services: External services
+          goods_and_services: Goods and services
+          income_cost: Income - Cost
+          legal_framework: Legal framework
+          personal_cost: Personal cost
+          public_tax: Public tax or prices
+          subsidies: Subsidies
+          total: Total
+          transference: Transference
+          types: Types
+        per_inhabitant: per inhabitant
+        see_all: See all
+        see_more: More information
+        title: Costs
+        total: Total cost
+        total_cost: Total cost
       subsidies:
         amount: Amount
         amount_distribution: Amount distribution
@@ -79,6 +115,7 @@ en:
       application:
         gobierto_dashboards:
           contracts: Contracts and tenders
+          costs: Costs
           subsidies: Subsidies
       menu_subsections:
         contracts: Contracts

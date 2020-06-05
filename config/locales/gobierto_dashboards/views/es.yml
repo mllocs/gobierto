@@ -45,6 +45,42 @@ es:
           tenders_for: licitaciones por importe de
         tender_amount: Imp. licitación
         title: Contratos y licitaciones
+      costs:
+        activities: Actividades
+        cost_direct: Coste directo
+        cost_indirect: Coste indirecto
+        cost_inhabitant: Coste/habitante
+        cost_per_inhabitant: Coste por habitante
+        coverage: Cobertura
+        description: El %{entity_name} es el responsable de proveer determinados servicios
+          a los ciudadanos. El coste de los servicios se cubre de forma directa (a
+          través de tasas) o indirecta (a través de partidas generales). En esta visualización
+          puedes explorar los servicios, sus costes y evolución, los ingresos...
+        detail: Detalle
+        distribution: Distribución de costes por área
+        home: Inicio
+        income: Ingresos
+        inhabitant: Habitante
+        item:
+          competence: Competencia
+          description: Descripción
+          equipments: Equipamientos
+          external_services: Servicios externos
+          goods_and_services: Bienes y servicios
+          income_cost: Ingresos - Costes
+          legal_framework: Marco legal
+          personal_cost: Coste personal
+          public_tax: Tasa o precios públicos
+          subsidies: Subvenciones
+          total: Total
+          transference: Transferencias
+          types: Tipos
+        per_inhabitant: por habitante
+        see_all: Ver todos
+        see_more: Más información
+        title: Costes
+        total: Total
+        total_cost: Coste total
       subsidies:
         amount: Importe
         amount_distribution: Distribución por importes
@@ -80,6 +116,7 @@ es:
       application:
         gobierto_dashboards:
           contracts: Contratos y licitaciones
+          costs: Costes
           subsidies: Subvenciones
       menu_subsections:
         contracts: Contratos
