@@ -148,7 +148,8 @@ window.GobiertoPlans.PlanTypesController = (function() {
         rootid: 0,
         readMoreButton: true,
         customFields: {},
-        openMenu: true
+        openMenu: true,
+        baseUrl: ''
       },
       computed: {
         computedProgress() {
@@ -189,6 +190,9 @@ window.GobiertoPlans.PlanTypesController = (function() {
         }
 
         window.onhashchange = locationHashChanged;
+      },
+      mounted: function() {
+        this.baseUrl = this.$el.dataset.baseurl
       },
       methods: {
         getJson: function() {
