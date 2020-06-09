@@ -1,15 +1,38 @@
 <template>
   <main class="gobierto-dashboards">
-    <div
-      v-if="dataGroup"
-      class="pure-g gutters m_b_1"
-    >
+    <div class="pure-g block header_block_inline m_b_1">
+      <div class="pure-u-1 pure-u-md-12-24">
+        <div class="gobierto-dashboards-container-title">
+          <h2 class="pure-u-1 gobierto-dashboards-title gobierto-dashboards-title-select">
+            {{ labelTittle }}
+          </h2>
+          <select
+            v-model="yearFiltered"
+            class="form-control gobierto-dashboards-select"
+            @change="onChangeFilterYear"
+          >
+            <option
+              v-for="year in years"
+              :key="year"
+              :value="year"
+              :index="year"
+              class="gobierto-dashboards-select-option"
+            >
+              {{ year }}
+            </option>
+          </select>
+        </div>
+        <p class="gobierto-dashboards-description">
+          {{ labelDescription }}
+        </p>
+      </div>
       <Distribution
-        :data="dataGroup"
+        :data="groupData"
         :year="yearFiltered"
       />
-      <Detail
-        :items="dataGroup"
+      <Table
+        :items-filter="groupDataFilter"
+        :items="costDataFilter"
         :year="yearFiltered"
       />
     </div>
@@ -17,22 +40,39 @@
 </template>
 <script>
 import Distribution from './Distribution.vue'
-import Detail from './Detail.vue'
+import Table from './table/Table.vue'
 export default {
   name: 'Home',
   components: {
     Distribution,
-    Detail
+    Table
   },
   data() {
     return {
       costData: this.$root.$data.costData,
-      dataGroup: [],
-      yearFiltered: "2018"
+      groupData: this.$root.$data.groupData,
+      getSiteName: document.querySelector('[data-site-name]').getAttribute('data-site-name'),
+      labelTittle: I18n.t("gobierto_dashboards.dashboards.costs.title") || "",
+      labelDescription: '',
+      yearFiltered: "2018",
+      years: ['2018', '2019'],
+      costDataFilter: [],
+      groupDataFilter: []
     }
   },
   created() {
-    this.onChangeFilterYear(this.yearFiltered)
+    this.labelDescription = I18n.t("gobierto_dashboards.dashboards.costs.description", { entity_name: this.getSiteName }) || "";
+    const {
+      params: {
+        year: year
+      }
+    } = this.$route
+    let yearFiltered = year
+    if (!year) yearFiltered = '2018'
+    this.yearFiltered = yearFiltered
+
+    this.costDataFilter = this.costData.filter(element => element.year === yearFiltered)
+    this.groupDataFilter = this.groupData.filter(element => element.year === yearFiltered)
   },
   methods: {
     onChangeFilterYear(value) {
@@ -43,37 +83,11 @@ export default {
         year = value.target.value
         this.yearFiltered = value.target.value
       }
-      this.itemsFilterYear = this.costData.filter(element => element.year === year)
-      this.groupData()
+      this.costDataFilter = this.costData.filter(element => element.year === year)
+      this.groupDataFilter = this.groupData.filter(element => element.year === year)
+      // eslint-disable-next-line no-unused-vars
+      this.$router.push(`/dashboards/costes/${year}`).catch(err => {})
     },
-    groupData() {
-      //reduce to sum all values for agrupacio
-      this.dataGroup = [...this.itemsFilterYear.reduce((r, o) => {
-        const key = o.agrupacio
-
-        const item = r.get(key) || Object.assign({}, o, {
-          cost_directe: 0,
-          cost_indirecte: 0,
-          cost_total: 0,
-          ingressos: 0,
-          respecte_ambit: 0,
-          total: 0,
-          totalPerHabitant: 0
-        });
-
-        item.cost_directe += o.cost_directe
-        item.cost_indirecte += o.cost_indirecte
-        item.cost_total += o.cost_total
-        item.ingressos += o.ingressos
-        //New item with the sum of values of each agrupacio
-        item.total += (o.total || 0) + 1
-        item.respecte_ambit += o.respecte_ambit
-        item.totalPerHabitant = item.cost_total / o.population
-
-        return r.set(key, item);
-      }, new Map).values()];
-      this.dataGroup = this.dataGroup.filter(element => element.agrupacio !== '')
-    }
   }
 }
 

@@ -60,34 +60,44 @@ export default {
     return {
       labelDistribution: I18n.t("gobierto_dashboards.dashboards.costs.distribution") || "",
       labelTotalCost: I18n.t("gobierto_dashboards.dashboards.costs.total_cost") || "",
-      labelInhabitant: I18n.t("gobierto_dashboards.dashboards.costs.inhabitant") || "",
+      labelInhabitant: I18n.t("gobierto_dashboards.dashboards.costs.inhabitants") || "",
       labelCostPerInhabitant: I18n.t("gobierto_dashboards.dashboards.costs.cost_per_inhabitant") || "",
       population: '',
       populationNumber: '',
-      visBubblesCosts: null
-    }
-  },
-  watch: {
-    data(newValue, oldValue) {
-      if (newValue !== oldValue) {
-        this.population = newValue[0].population
-        this.updateBubbles()
-      }
+      visBubblesCosts: null,
+      dataFilter: []
     }
   },
   computed: {
     totalCost() {
-      const total = this.data.reduce((accum,element) => accum + element.cost_total, 0)
+      const total = this.dataFilter.reduce((accum,element) => accum + element.cost_total, 0)
       return (total / 1000000).toFixed(1).replace(/\./, ',') + ' M€';
     },
     totalCostPerHabitant() {
-      return this.data.reduce((accum,element) => accum + element.cost_total, 0) / this.population
+      return this.dataFilter.reduce((accum,element) => accum + element.cost_total, 0) / this.population
+    }
+  },
+  watch: {
+    year(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        this.dataFilter = this.data.filter(element => element.year === newValue)
+        const [{
+          population: population
+        }] = this.dataFilter
+        this.population = population
+        this.populationNumber = Number(population).toLocaleString("es-ES")
+        this.updateBubbles()
+        this.totalCost
+        this.totalCostPerHabitant
+      }
     }
   },
   created() {
+    const year = this.year
+    this.dataFilter = this.data.filter(element => element.year === year)
     const [{
       population: population
-    }] = this.data
+    }] = this.dataFilter
     this.population = population
     this.populationNumber = Number(population).toLocaleString("es-ES")
   },
@@ -98,8 +108,8 @@ export default {
     createBubbleViz() {
       this.visBubblesCosts = new VisBubble('.vis-costs', this.year, this.data);
       this.visBubblesCosts.render();
-      var self = this;
-      window.addEventListener('resize', function(e) {
+      const self = this;
+      window.addEventListener('resize', function() {
         self.updateBubbles()
       });
     },

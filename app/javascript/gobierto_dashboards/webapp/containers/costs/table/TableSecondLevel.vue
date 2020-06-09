@@ -2,7 +2,7 @@
   <div>
     <TableHeader>
       <router-link
-        :to="{ name: 'TableFirstLevel'}"
+        :to="{ path:`/dashboards/costes/${$route.params.year}`}"
         class="gobierto-dashboards-table-header--link-top"
         tag="a"
         @click.native="loadTable(0)"
@@ -11,12 +11,9 @@
         {{ labelSeeAll }}
       </router-link>
     </TableHeader>
-    <TableSubHeader
-      :items="items"
-      :year="year"
-    />
+    <TableSubHeader :items="itemsFilter" />
     <table class="gobierto-dashboards-table">
-      <template v-for="{ nomact, codiact, cost_directe, cost_indirecte, cost_total, total, index, cost_per_habitant, ingressos, act_intermedia, respecte_ambit, agrupacio, ordre_agrupacio, totalPerHabitant } in dataActIntermediaTotal">
+      <template v-for="{ nomact, codiact, cost_directe, cost_indirecte, cost_total, total, index, cost_per_habitant, ingressos, act_intermedia, respecte_ambit, agrupacio, ordre_agrupacio, totalPerHabitant, year } in dataActIntermediaTotal">
         <tr
           :key="nomact"
           class="gobierto-dashboards-tablerow--header"
@@ -34,7 +31,7 @@
           <template v-else>
             <td class="gobierto-dashboards-table-header--nav">
               <router-link
-                :to="{ name: 'TableItem', params: { item: codiact, id: ordre_agrupacio, section: agrupacio } }"
+                :to="{ name: 'TableItem', params: { item: codiact, id: ordre_agrupacio, section: agrupacio, year: year } }"
                 class="gobierto-dashboards-table-header--link"
                 tag="a"
                 @click.native="loadTable(2)"
@@ -70,9 +67,9 @@
           </td>
         </tr>
         <transition
+          :key="codiact"
           name="fade"
           mode="out-in"
-          :key="codiact"
         >
           <template v-if="total > 0 && selectedToggle === act_intermedia && selectedToggle !== null">
             <tbody
@@ -80,13 +77,13 @@
               class="gobierto-dashboards-table--secondlevel gobierto-dashboards-table--secondlevel-nested"
             >
               <tr
-                v-for="{ nomact, codiact, cost_directe, cost_indirecte, cost_total, total, index, cost_per_habitant, ingressos, respecte_ambit, agrupacio, ordre_agrupacio } in dataGroupIntermedia"
+                v-for="{ nomact, codiact, cost_directe, cost_indirecte, cost_total, total, index, cost_per_habitant, ingressos, respecte_ambit, agrupacio, ordre_agrupacio, year } in dataGroupIntermedia"
                 :key="codiact"
                 class="gobierto-dashboards-tablerow--header"
               >
                 <td class="gobierto-dashboards-table--secondlevel-elements gobierto-dashboards-table-header--nav">
                   <router-link
-                    :to="{ name: 'TableItem', params: { item: codiact, id: ordre_agrupacio, section: agrupacio } }"
+                    :to="{ name: 'TableItem', params: { item: codiact, id: ordre_agrupacio, section: agrupacio, year: year } }"
                     class="gobierto-dashboards-table-header--link"
                     tag="a"
                     @click.native="loadTable(2)"
@@ -131,8 +128,13 @@ export default {
     TableHeader,
     TableSubHeader
   },
+  mixins: [VueFiltersMixin],
   props: {
     items: {
+      type: Array,
+      default: () => []
+    },
+    itemsFilter: {
       type: Array,
       default: () => []
     },
@@ -141,7 +143,6 @@ export default {
       default: ''
     }
   },
-  mixins: [VueFiltersMixin],
   data() {
     return {
       labelTotal: I18n.t("gobierto_dashboards.dashboards.costs.total") || "",
@@ -154,8 +155,7 @@ export default {
       labelActivities: I18n.t("gobierto_dashboards.dashboards.costs.activities") || "",
       labelSeeAll: I18n.t("gobierto_dashboards.dashboards.costs.see_all") || "",
       dataActIntermediaTotal: [],
-      totalItems: this.$root.$data.costData,
-      selectedToggle: null,
+      selectedToggle: null
     }
   },
   created() {
@@ -164,10 +164,8 @@ export default {
   methods: {
     intermediaData() {
       const filterActIntermedia = this.$route.params.id
-      let dataAgrupacio = this.totalItems.filter(element => element.year === this.year)
-      dataAgrupacio = dataAgrupacio.filter(element => element.ordre_agrupacio === filterActIntermedia)
+      let dataAgrupacio = this.items.filter(element => element.ordre_agrupacio === filterActIntermedia)
       let dataActIntermedia = dataAgrupacio.filter(element => element.act_intermedia !== '')
-
       let dataActIntermediaValues = [...dataActIntermedia.reduce((r, o) => {
         let key = o.act_intermedia
 
@@ -196,11 +194,10 @@ export default {
       }, new Map).values()];
 
       const dataActIntermediaWithoutValues = dataAgrupacio.filter(element => element.act_intermedia === '')
-
       this.dataActIntermediaTotal = [...dataActIntermediaValues, ...dataActIntermediaWithoutValues]
     },
     agrupacioDataFilter(actIntermedia) {
-      this.dataGroupIntermedia = this.totalItems.filter(element => element.act_intermedia === actIntermedia && element.year === this.year)
+      this.dataGroupIntermedia = this.items.filter(element => element.act_intermedia === actIntermedia)
     },
     hasChildren(value) {
       if (value > 0) {
