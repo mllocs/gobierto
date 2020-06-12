@@ -29,6 +29,7 @@
       <Distribution
         :data="groupData"
         :year="yearFiltered"
+        :years="years"
       />
       <Table
         :items-filter="groupDataFilter"
@@ -73,6 +74,12 @@ export default {
 
     this.costDataFilter = this.costData.filter(element => element.year === yearFiltered)
     this.groupDataFilter = this.groupData.filter(element => element.year === yearFiltered)
+
+    this.costDataFilter = this.costDataFilter.sort((a, b) => (a.cost_total > b.cost_total) ? -1 : 1)
+    this.groupDataFilter = this.groupDataFilter.sort((a, b) => (a.cost_total > b.cost_total) ? -1 : 1)
+  },
+  mounted() {
+    this.injectRouter()
   },
   methods: {
     onChangeFilterYear(value) {
@@ -88,6 +95,22 @@ export default {
       // eslint-disable-next-line no-unused-vars
       this.$router.push(`/dashboards/costes/${year}`).catch(err => {})
     },
+    injectRouter() {
+      const bubbleLinks = document.querySelectorAll('.bubbles-links')
+      bubbleLinks.forEach(bubble => bubble.addEventListener('click', (e) => {
+        const {
+          target: {
+            __data__: {
+              ordre_agrupacio: order,
+              year: year
+            }
+          }
+        } = e
+        e.preventDefault()
+        // eslint-disable-next-line no-unused-vars
+        this.$router.push(`/dashboards/costes/${year}/${order}`).catch(err => {})
+      }))
+    }
   }
 }
 
