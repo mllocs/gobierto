@@ -309,11 +309,16 @@
         display: inline-block;
       }
 
+
       td {
         border-top: 0;
         padding: 0 1rem;
         display: table-cell;
         width: 12%;
+
+        &.gobierto-dashboards-table-header--nav {
+          width: 28%;
+        }
 
         &.gobierto-dashboards-table-header--elements::before {
           display: none;
