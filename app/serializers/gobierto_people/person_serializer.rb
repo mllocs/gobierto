@@ -37,12 +37,8 @@ module GobiertoPeople
       filtered_positions.first&.name
     end
 
-    def all_positions_html
-      object.historical_charges.reverse_sorted.join("<br>")
-    end
-
     def filtered_positions
-      charges[object.id] || []
+      @filtered_positions ||= charges[object.id] || []
     end
 
     def filtered_positions_html

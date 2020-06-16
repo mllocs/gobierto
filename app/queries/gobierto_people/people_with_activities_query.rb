@@ -6,7 +6,7 @@ module GobiertoPeople
     def initialize(params = {})
       @site = params[:site]
       @conditions = params[:conditions].symbolize_keys
-      @relation = (params[:relation] || model.all).where(id: people_with_activities.map(&:id)).left_outer_joins(events_association)
+      @relation = (params[:relation] || model).where(id: people_with_activities.map(&:id)).left_outer_joins(events_association)
       append_query_conditions(@conditions) if @conditions
       @limit = params[:limit] || DEFAULT_LIMIT
     end
@@ -78,22 +78,32 @@ module GobiertoPeople
     end
 
     def activities_sql
-      cte = ASSOCIATIONS.keys.map do |association_model|
+      # Query to find people from a people relation or the model itself which
+      # have at least one activity within the dates set in @conditions and are of
+      # one of the types defined in ASSOCIATIONS
+
+      # This sql is used to provide common table expresions selecting all kinds
+      # of person activities restricted to the dates in @conditions
+      common_table_expression = ASSOCIATIONS.keys.map do |association_model|
         "#{association_model}_relation AS (#{relation_sql(association_model)})"
       end.join(", ")
 
+      # left outer joins of all previous common table expressions with relation table
       joins = ASSOCIATIONS.keys.map do |association_model|
         "LEFT OUTER JOIN #{association_model}_relation on #{table_name}.id = #{association_model}_relation.id"
       end.join(" ")
 
+      # the person must be present in at least one of the previous common table
+      # expression
       where = ASSOCIATIONS.keys.map do |association_model|
         "#{table_name}.id = #{association_model}_relation.id"
       end.join(" OR ")
 
-      "WITH #{cte} SELECT DISTINCT(#{table_name}.*) FROM #{table_name} #{joins} WHERE #{where}"
+      "WITH #{common_table_expression} SELECT DISTINCT(#{table_name}.id) FROM #{table_name} #{joins} WHERE #{where}"
     end
 
     def relation_sql(model)
+      # sql of join between people and model restricted to the the date range of @conditions
       @site.people.joins(ASSOCIATIONS[model][:association_name]).where(date_range_sql(model, @conditions), @conditions).distinct.to_sql
     end
 
