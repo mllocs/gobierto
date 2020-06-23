@@ -126,6 +126,10 @@ export default {
       type: Number,
       default: 0,
     },
+    pageTitle: {
+      type: String,
+      default: ''
+    },
   },
   data() {
     return {
@@ -171,7 +175,12 @@ export default {
       queryInputFocus : false,
       isPublicVizLoading: false,
       vizName: null,
-      vizInputFocus: false
+      vizInputFocus: false,
+      labelSummary: I18n.t("gobierto_data.projects.summary") || "",
+      labelData: I18n.t("gobierto_data.projects.data") || "",
+      labelQueries: I18n.t("gobierto_data.projects.queries") || "",
+      labelVisualizations: I18n.t("gobierto_data.projects.visualizations") || "",
+      labelDownload: I18n.t("gobierto_data.projects.download") || "",
     };
   },
   computed: {
@@ -205,6 +214,10 @@ export default {
         this.currentVizTab = 1
       }
 
+      //Update only the baseTitle of the dataset that is active
+      if (to.name === 'Dataset' && this._inactive === false) {
+        this.updateBaseTitle()
+      }
       //FIXME: Hugo, we need to talk about this hack
       // https://stackoverflow.com/questions/50295985/how-to-tell-if-a-vue-component-is-active-or-not
       if (to.name === 'Query' && this._inactive === false) {
@@ -291,6 +304,7 @@ export default {
     this.runCurrentQuery();
     this.setDefaultQuery();
     this.checkIfUserIsLogged();
+    this.updateBaseTitle()
 
   },
   mounted() {
@@ -383,6 +397,44 @@ export default {
     this.$root.$off('showSavingDialogEvent')
   },
   methods: {
+    updateBaseTitle() {
+      this.$nextTick(() =>
+        this.$nextTick(() => {
+          let title
+          const {
+            name: nameComponent,
+            params: {
+              tab: tabName
+            }
+          } = this.$route
+          if (nameComponent === "Dataset") {
+            if (this.titleDataset) {
+              const titleI18n = this.titleDataset
+                ? `${this.titleDataset} · `
+                : "";
+
+                if (tabName === 'editor') {
+                  const tabTitle = `${this.labelData} · `
+                  title = `${titleI18n} ${tabTitle} ${this.pageTitle}`;
+                } else if (tabName === 'consultas') {
+                  const tabTitle = `${this.labelQueries} · `
+                  title = `${titleI18n} ${tabTitle} ${this.pageTitle}`;
+                } else if (tabName === 'visualizaciones') {
+                  const tabTitle = `${this.labelVisualizations} · `
+                  title = `${titleI18n} ${tabTitle} ${this.pageTitle}`;
+                } else if (tabName === 'descarga') {
+                  const tabTitle = `${this.labelDownload} · `
+                  title = `${titleI18n} ${tabTitle} ${this.pageTitle}`;
+                } else {
+                  const tabTitle = `${this.labelSummary} · `
+                  title = `${titleI18n} ${tabTitle} ${this.pageTitle}`;
+                }
+            }
+          }
+          document.title = title;
+        })
+      );
+    },
     checkIfUserIsLogged() {
       if (this.isUserLogged) {
         this.isVizSavingPromptVisible = true
