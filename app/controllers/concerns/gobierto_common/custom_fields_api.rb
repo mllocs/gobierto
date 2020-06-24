@@ -5,7 +5,7 @@ module GobiertoCommon
     extend ActiveSupport::Concern
 
     included do
-      attr_reader :resource
+      attr_reader :resource, :vocabularies_adapter
 
       serialization_scope :current_site
     end
@@ -39,7 +39,7 @@ module GobiertoCommon
                    else
                      {}
                    end
-      render json: custom_fields, adapter: :json_api, meta: meta_stats
+      render json: custom_fields, adapter: :json_api, meta: meta_stats, vocabularies_adapter: vocabularies_adapter
     end
 
     private
@@ -108,7 +108,11 @@ module GobiertoCommon
     end
 
     def custom_fields
-      @custom_fields ||= current_site.custom_fields.for_class(resource.class)
+      @custom_fields ||= if resource.try(:instance_level_custom_fields).present?
+                           resource.instance_level_custom_fields
+                         else
+                           current_site.custom_fields.for_class(resource.class)
+                         end
     end
 
   end
