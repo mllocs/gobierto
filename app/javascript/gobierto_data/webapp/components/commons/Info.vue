@@ -29,21 +29,29 @@
         class="gobierto-data-summary-header-description"
         v-html="compiledHTMLMarkdown"
       />
-      <transition
-        name="fade"
-        mode="out-in"
-      >
-        <template v-if="truncateIsActive">
-          <span class="gobierto-data-summary-header-description-link" @click="truncateIsActive = !truncateIsActive">
-            {{ seeMore }}
-          </span>
-        </template>
-        <template v-else>
-          <span class="gobierto-data-summary-header-description-link" @click="scrollDetail">
-            {{ seeLess }}
-          </span>
-        </template>
-      </transition>
+      <template v-if="checkStringLenght">
+        <transition
+          name="fade"
+          mode="out-in"
+        >
+          <template v-if="truncateIsActive">
+            <span
+              class="gobierto-data-summary-header-description-link"
+              @click="truncateIsActive = !truncateIsActive"
+            >
+              {{ seeMore }}
+            </span>
+          </template>
+          <template v-else>
+            <span
+              class="gobierto-data-summary-header-description-link"
+              @click="scrollDetail"
+            >
+              {{ seeLess }}
+            </span>
+          </template>
+        </transition>
+      </template>
     </div>
   </div>
 </template>
@@ -114,13 +122,18 @@ export default {
       } else {
         return mdText
       }
-
+    },
+    checkStringLenght() {
+      return this.descriptionDataset.length > 250
     }
   },
   methods: {
     scrollDetail() {
-      const element = document.getElementById('gobierto-data-summary-header');
-      element.scrollIntoView({ behavior: "smooth" })
+      const element = document.getElementById('gobierto-datos-app');
+      window.scrollTo({
+        top: element.offsetTop,
+        behavior: 'smooth'
+      });
       this.truncateIsActive = true
     }
   }
