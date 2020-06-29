@@ -26,7 +26,8 @@ import {
   translate,
   money,
   date,
-  truncate
+  truncate,
+  percent
 } from "./modules/vue-filters.js";
 import { Middleware } from "./modules/middleware.js";
 import "./modules/iFrameCommunication.js";
@@ -48,5 +49,6 @@ export {
   translate,
   money,
   date,
-  truncate
+  truncate,
+  percent
 };
