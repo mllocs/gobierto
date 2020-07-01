@@ -225,7 +225,7 @@ export default {
     },
     enableForkPrompt() {
       return (this.isForkPromptVisible && this.isUserLogged && this.isQuerySavingPromptVisible) || this.labelValue || this.isVizSavingPromptVisible
-    },
+    }
   },
   watch: {
     value(newValue, oldValue) {
@@ -237,7 +237,17 @@ export default {
     },
     showPrivate(newValue) {
       this.isPrivate = (newValue);
-    }
+    },
+    isQuerySaved(newValue) {
+      if (newValue) {
+        this.disabledButton = true
+      }
+    },
+    enabledForkButton(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        this.enabledForkButton = newValue
+      }
+    },
   },
   mounted() {
     if (this.$route.name === 'Query' && this.value !== null) {
@@ -247,8 +257,12 @@ export default {
     }
   },
   methods: {
-    inputFocus() {
-      this.$refs.inputText.focus()
+    inputFocus(value) {
+      if (value) {
+        this.$refs.inputText.focus()
+      } else {
+        this.$refs.inputText.blur()
+      }
     },
     inputSelect() {
       this.$refs.inputText.select()
