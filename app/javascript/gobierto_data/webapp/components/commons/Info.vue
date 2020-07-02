@@ -29,27 +29,25 @@
         class="gobierto-data-summary-header-description"
         v-html="compiledHTMLMarkdown"
       />
-      <template v-if="checkStringLenght">
+      <template v-if="checkStringLength">
         <transition
           name="fade"
           mode="out-in"
         >
-          <template v-if="truncateIsActive">
-            <span
-              class="gobierto-data-summary-header-description-link"
-              @click="truncateIsActive = !truncateIsActive"
-            >
-              {{ seeMore }}
-            </span>
-          </template>
-          <template v-else>
-            <span
-              class="gobierto-data-summary-header-description-link"
-              @click="scrollDetail"
-            >
-              {{ seeLess }}
-            </span>
-          </template>
+          <span
+            v-if="truncateIsActive"
+            class="gobierto-data-summary-header-description-link"
+            @click="truncateIsActive = !truncateIsActive"
+          >
+            {{ seeMore }}
+          </span>
+          <span
+            v-else
+            class="gobierto-data-summary-header-description-link"
+            @click="scrollDetail"
+          >
+            {{ seeLess }}
+          </span>
         </transition>
       </template>
     </div>
@@ -58,6 +56,7 @@
 <script>
 import { date, truncate } from "lib/shared"
 import InfoBlockText from "./../commons/InfoBlockText.vue";
+//Parse markdown to HTML
 const marked = require('marked');
 const TurndownService = require('turndown').default;
 
@@ -116,14 +115,13 @@ export default {
         sanitize: false,
         tables: true
       })
-
       if (this.truncateIsActive) {
         return truncate(mdText, { length: 250 })
       } else {
         return mdText
       }
     },
-    checkStringLenght() {
+    checkStringLength() {
       return this.descriptionDataset.length > 250
     }
   },
