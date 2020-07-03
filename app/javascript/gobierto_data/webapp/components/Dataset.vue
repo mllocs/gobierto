@@ -176,13 +176,13 @@ export default {
       isPublicVizLoading: false,
       vizName: null,
       vizInputFocus: false,
+      savingViz: false,
+      savingQuery: false,
       labelSummary: I18n.t("gobierto_data.projects.summary") || "",
       labelData: I18n.t("gobierto_data.projects.data") || "",
       labelQueries: I18n.t("gobierto_data.projects.queries") || "",
       labelVisualizations: I18n.t("gobierto_data.projects.visualizations") || "",
       labelDownload: I18n.t("gobierto_data.projects.download") || "",
-      savingViz: false,
-      savingQuery: false
     };
   },
   computed: {
@@ -412,16 +412,17 @@ export default {
   },
   methods: {
     updateBaseTitle() {
-      this.$nextTick(() => {
-        let title
-        let tabTitle
-        const {
-          name: nameComponent,
-          params: {
-            tab: tabName
-          }
-        } = this.$route
-        if (nameComponent === "Dataset" && this.titleDataset) {
+      const {
+        name: nameComponent,
+        params: {
+          tab: tabName
+        }
+      } = this.$route
+      if (nameComponent === "Dataset" && this.titleDataset) {
+        this.$nextTick(() => {
+          let title
+          let tabTitle
+
           const titleI18n = this.titleDataset
             ? `${this.titleDataset} · `
             : "";
@@ -438,9 +439,9 @@ export default {
             tabTitle = `${this.labelSummary} · `
           }
           title = `${titleI18n} ${tabTitle} ${this.pageTitle}`;
-        }
-        document.title = title;
-      });
+          document.title = title;
+        })
+      }
     },
     checkIfUserIsLogged() {
       if (this.isUserLogged) {
@@ -798,6 +799,7 @@ export default {
     },
     updateURL(element) {
       const {
+        name: nameComponent,
         params: {
           id: slugDataset
         }
@@ -807,13 +809,17 @@ export default {
       //Changes the path depending on if we save a query or viz.
       const pathQueryOrViz = this.savingViz ? 'v' : 'q'
 
-      /*Don't updates the URL, only replace and don't reload, because in the editor we've two options, saved a query or viz, if the user saves a viz, and we update the URL, the browser reloads, and the user goes to visualization tab, and this behavior is too hacky.*/
+      /*Don't updates the URL if the component is Editor, only replace and don't reload, because in the editor we've two options, saved a query or viz, if the user saves a viz, and we update the URL, the browser reloads, and the user goes to visualization tab, and this behavior is too hacky.*/
       //https://developer.mozilla.org/en-US/docs/Web/API/History/pushState
-      history.pushState(
-        {},
-        null,
-        `${location.origin}/datos/${slugDataset}/${pathQueryOrViz}/${newId}`
-      )
+      if (nameComponent === 'Query') {
+        history.pushState(
+          {},
+          null,
+          `${location.origin}/datos/${slugDataset}/${pathQueryOrViz}/${newId}`
+        )
+      } else {
+        this.$router.push(`/datos/${slugDataset}/${pathQueryOrViz}/${newId}`)
+      }
 
       this.enabledForkButton = false
       this.queryInputFocus = false
