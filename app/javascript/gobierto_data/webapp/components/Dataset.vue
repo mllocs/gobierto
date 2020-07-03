@@ -56,6 +56,8 @@
       :is-user-logged="isUserLogged"
       :query-input-focus="queryInputFocus"
       :viz-input-focus="vizInputFocus"
+      :show-private-public-icon="showPrivatePublicIcon"
+      :show-private-public-icon-viz="showPrivatePublicIconViz"
     />
 
     <QueriesTab
@@ -76,10 +78,14 @@
       :is-public-viz-loading="isPublicVizLoading"
       :public-visualizations="publicVisualizations"
       :private-visualizations="privateVisualizations"
+      :private-queries="privateQueries"
       :enabled-viz-saved-button="enabledVizSavedButton"
       :current-viz-tab="currentVizTab"
       :enabled-fork-viz-button="enabledForkVizButton"
       :viz-input-focus="vizInputFocus"
+      :show-private-public-icon-viz="showPrivatePublicIconViz"
+      :show-private="showPrivate"
+      :show-private-viz="showPrivateViz"
     />
 
     <DownloadsTab
@@ -178,6 +184,9 @@ export default {
       vizInputFocus: false,
       savingViz: false,
       savingQuery: false,
+      showPrivatePublicIcon: false,
+      showPrivatePublicIconViz: false,
+      showPrivateViz: false,
       labelSummary: I18n.t("gobierto_data.projects.summary") || "",
       labelData: I18n.t("gobierto_data.projects.data") || "",
       labelQueries: I18n.t("gobierto_data.projects.queries") || "",
@@ -205,7 +214,7 @@ export default {
       if (to.path !== from.path) {
         this.isQueryModified = false;
         this.setDefaultQuery()
-        this.queryIsNotMine()
+        this.queryOrVizIsNotMine()
         this.disabledSavedButton()
         this.disabledRevertButton()
       }
@@ -214,6 +223,7 @@ export default {
         this.currentVizTab = 0
       } else if (to.name === 'Visualization') {
         this.currentVizTab = 1
+        this.reloadVisualizations()
       }
 
       //Update only the baseTitle of the dataset that is active
@@ -314,7 +324,7 @@ export default {
       this.currentQuery = `SELECT * FROM ${this.tableName} LIMIT 50`;
     }
 
-    this.queryIsNotMine();
+    this.queryOrVizIsNotMine();
     this.runCurrentQuery();
     this.setDefaultQuery();
     this.checkIfUserIsLogged();
@@ -788,13 +798,11 @@ export default {
         this.enabledVizSavedButton = false
         this.vizName = null
 
-        await this.getPrivateVisualizations()
-
         /* Check if the user saved a viz from another user, we need to wait to obtain the private visualizations to avoid error because it's possible which this Visualization is the first Visualization which user save */
         if (user !== userId || newViz) {
           await this.updateURL(newViz)
         }
-        await this.getPublicVisualizations()
+        this.reloadVisualizations()
       }
     },
     updateURL(element) {
@@ -831,6 +839,7 @@ export default {
     resetQuery(value) {
       this.resetQueryDefault = value
       if (value === true) {
+        this.showPrivatePublicIcon = false
         this.isQuerySavingPromptVisible = false
         this.currentQuery = `SELECT * FROM ${this.tableName} LIMIT 50`;
         this.isQueryModified = false
@@ -838,6 +847,7 @@ export default {
         this.disabledSavedButton()
         this.disabledStringSavedQuery()
         this.queryName = null
+        this.disabledForkButton()
       }
     },
     revertSavedQuery(value) {
@@ -880,29 +890,47 @@ export default {
     isSavingPromptVisibleHandler(value) {
       this.isSavingPromptVisible = value
     },
-    queryIsNotMine() {
+    queryOrVizIsNotMine() {
       const userId = Number(getUserId());
       const {
         params: { queryId },
         name: nameComponent
       } = this.$route;
 
-      let items = this.publicQueries;
+      //Find which query is loaded
+      if (userId !== 0 && nameComponent === 'Query') {
 
-      //Find which query is loaded, get the userId and queryId
-      const { id: oldQueryId, attributes: { user_id: checkUserId } = {} } = items.find(({ id }) => id === queryId) || {}
+        const items = !this.showPrivate ? this.publicQueries : this.privateQueries
+        const { attributes: { user_id: checkUserId } = {} } = items.find(({ id }) => id === queryId) || {}
 
-      /*Check:
-      - If user is logged
-      - If the user who loaded the query is the same user who created the query
-      - If the component is query
-      - The user can fork a query from another user, so we need to check if the ID's are equal.*/
-      if (this.isUserLogged && userId !== checkUserId && nameComponent === 'Query' && oldQueryId === queryId) {
-        this.enabledForkButton = true
-        this.isForkPromptVisible = true
-      } else {
-        this.disabledForkButton()
-        this.enabledForkPrompt()
+        //Check if the user who loaded the query is the same user who created the query
+        if (userId !== checkUserId) {
+          this.showPrivatePublicIcon = false
+          this.enabledForkButton = true
+          this.isForkPromptVisible = true
+        } else {
+          this.showPrivatePublicIcon = true
+          this.disabledForkButton()
+        }
+      } else if (userId !== 0 && nameComponent === 'Visualization') {
+
+        const objectViz = this.privateVisualizations.find(({ id }) => id === queryId) || {}
+        const { privacy_status: privacyStatus } = objectViz
+
+        this.showPrivateViz = privacyStatus === 'closed' ? true : false
+        const items = !this.showPrivateViz ? this.publicVisualizations : this.privateVisualizations
+
+        //Find which viz is loaded
+        const { user_id: checkUserId = {} } = items.find(({ id }) => id === queryId) || {}
+
+        //Check if the user who loaded the viz is the same user who created the viz
+        if (userId !== checkUserId) {
+          this.enabledForkVizButton = true
+          this.showPrivatePublicIconViz = false
+        } else {
+          this.showPrivatePublicIconViz = true
+          this.enabledForkVizButton = false
+        }
       }
     },
     disabledForkButton() {
@@ -916,6 +944,7 @@ export default {
     },
     activatedRevertButton() {
       this.enabledRevertButton = true
+      this.showPrivatePublicIcon = true
     },
     disabledSavedVizString() {
       this.isVizSaved = false
@@ -950,6 +979,7 @@ export default {
 
       await this.getPrivateVisualizations()
       await this.getPublicVisualizations()
+      this.queryOrVizIsNotMine()
     },
     activateForkVizButton(value) {
       this.enabledForkVizButton = value
@@ -971,6 +1001,7 @@ export default {
     showSavingDialogEvent() {
       this.enabledVizSavedButton = true
       this.isVizModified = true
+      this.showPrivatePublicIconViz = true
     }
   },
 };

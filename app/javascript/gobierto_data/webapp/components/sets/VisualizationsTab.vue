@@ -2,9 +2,10 @@
   <div class="gobierto-data-sets-nav--tab-container">
     <component
       :is="currentVizComponent"
-      v-if="publicVisualizations"
+      v-if="publicVisualizations.length"
       :public-visualizations="publicVisualizations"
       :private-visualizations="privateVisualizations"
+      :private-queries="privateQueries"
       :dataset-id="datasetId"
       :is-user-logged="isUserLogged"
       :is-public-loading="isPublicLoading"
@@ -20,13 +21,14 @@
       :enabled-viz-saved-button="enabledVizSavedButton"
       :enabled-fork-viz-button="enabledForkVizButton"
       :viz-input-focus="vizInputFocus"
+      :show-private-public-icon-viz="showPrivatePublicIconViz"
+      :show-private-viz="showPrivateViz"
       @changeViz="showVizElement"
       @emitDelete="deleteHandlerVisualization"
     />
   </div>
 </template>
 <script>
-
 import { VisualizationFactoryMixin } from "./../../../lib/factories/visualizations";
 
 const COMPONENTS = [
@@ -72,6 +74,10 @@ export default {
       type: Array,
       default: () => []
     },
+    privateQueries: {
+      type: Array,
+      default: () => []
+    },
     isPrivateVizLoading: {
       type: Boolean,
       default: false
@@ -91,6 +97,14 @@ export default {
     vizInputFocus: {
       type: Boolean,
       default: true
+    },
+    showPrivatePublicIconViz: {
+      type: Boolean,
+      default: false
+    },
+    showPrivateViz: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
