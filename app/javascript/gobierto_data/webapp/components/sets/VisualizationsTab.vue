@@ -1,7 +1,12 @@
 <template>
   <div class="gobierto-data-sets-nav--tab-container">
     <template v-if="!publicVisualizations.length">
-      <Loading />
+      <SkeletonSpinner
+        height-square="300px"
+        squares-rows="2"
+        squares="2"
+        lines="5"
+      />
     </template>
     <template v-else>
       <component
@@ -34,7 +39,7 @@
   </div>
 </template>
 <script>
-import { Loading } from "lib/vue-components";
+import { SkeletonSpinner } from "lib/vue-components";
 import { VisualizationFactoryMixin } from "./../../../lib/factories/visualizations";
 
 const COMPONENTS = [
@@ -45,7 +50,7 @@ const COMPONENTS = [
 export default {
   name: "VisualizationsTab",
   components: {
-    Loading
+    SkeletonSpinner
   },
   mixins: [
     VisualizationFactoryMixin,
