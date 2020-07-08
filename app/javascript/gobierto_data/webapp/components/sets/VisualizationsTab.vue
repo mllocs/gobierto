@@ -1,12 +1,20 @@
 <template>
   <div class="gobierto-data-sets-nav--tab-container">
     <template v-if="!isVizLoading">
-      <SkeletonSpinner
-        height-square="300px"
-        squares-rows="2"
-        squares="2"
-        lines="5"
-      />
+      <template v-if="listVizComponent">
+        <SkeletonSpinner
+          height-square="200px"
+          squares-rows="2"
+          squares="2"
+        />
+      </template>
+      <template v-else>
+        <SkeletonSpinner
+          height-square="300px"
+          squares="1"
+          lines="2"
+        />
+      </template>
     </template>
     <template v-else>
       <component
@@ -125,6 +133,7 @@ export default {
       items: null,
       isPrivateLoading: false,
       isPublicLoading: false,
+      listVizComponent: true,
       titleViz: '',
       activeViz: 0,
       config: {}
@@ -156,8 +165,10 @@ export default {
 
     if (nameComponent === 'Visualization') {
       this.currentVizComponent = COMPONENTS[1];
+      this.listVizComponent = false
     } else {
       this.currentVizComponent = COMPONENTS[this.activeViz];
+      this.listVizComponent = true
     }
   },
   methods: {
