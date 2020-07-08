@@ -241,7 +241,7 @@ export default {
       }
 
       //Update only the baseTitle of the dataset that is active
-      if (to.name === 'Dataset' && this._inactive === false) {
+      if (to.path !== from.path && to.name === 'Dataset' && this._inactive === false) {
         this.updateBaseTitle()
       }
       //FIXME: Hugo, we need to talk about this hack
@@ -336,8 +336,8 @@ export default {
     this.runCurrentQuery();
     this.setDefaultQuery();
     this.checkIfUserIsLogged();
-    this.updateBaseTitle()
     this.getAllVisualizations()
+    this.updateBaseTitle()
   },
   mounted() {
     const recentQueries = localStorage.getItem("recentQueries");
@@ -437,28 +437,26 @@ export default {
         }
       } = this.$route
       if (nameComponent === "Dataset" && this.titleDataset) {
-        this.$nextTick(() => {
-          let title
-          let tabTitle
+        let title
+        let tabTitle
 
-          const titleI18n = this.titleDataset
-            ? `${this.titleDataset} · `
-            : "";
+        const titleI18n = this.titleDataset
+          ? `${this.titleDataset} · `
+          : "";
 
-          if (tabName === 'editor') {
-            tabTitle = `${this.labelData} · `
-          } else if (tabName === 'consultas') {
-            tabTitle = `${this.labelQueries} · `
-          } else if (tabName === 'visualizaciones') {
-            tabTitle = `${this.labelVisualizations} · `
-          } else if (tabName === 'descarga') {
-            tabTitle = `${this.labelDownload} · `
-          } else {
-            tabTitle = `${this.labelSummary} · `
-          }
-          title = `${titleI18n} ${tabTitle} ${this.pageTitle}`;
-          document.title = title;
-        })
+        if (tabName === 'editor') {
+          tabTitle = `${this.labelData} · `
+        } else if (tabName === 'consultas') {
+          tabTitle = `${this.labelQueries} · `
+        } else if (tabName === 'visualizaciones') {
+          tabTitle = `${this.labelVisualizations} · `
+        } else if (tabName === 'descarga') {
+          tabTitle = `${this.labelDownload} · `
+        } else {
+          tabTitle = `${this.labelSummary} · `
+        }
+        title = `${titleI18n} ${tabTitle} ${this.pageTitle}`;
+        document.title = title;
       }
     },
     checkIfUserIsLogged() {

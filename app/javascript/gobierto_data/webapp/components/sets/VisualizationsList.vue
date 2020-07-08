@@ -162,6 +162,9 @@ export default {
       if (!newValue) this.removeAllIcons()
     }
   },
+  mounted() {
+    this.removeAllIcons()
+  },
   methods: {
     loadViz(vizName, user) {
       document.getElementById('gobierto-datos-app').scrollIntoView();
