@@ -811,7 +811,6 @@ export default {
     },
     updateURL(element) {
       const {
-        name: nameComponent,
         params: {
           id: slugDataset
         }
