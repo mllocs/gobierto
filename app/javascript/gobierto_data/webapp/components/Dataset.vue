@@ -536,6 +536,8 @@ export default {
           this.privateVisualizations = await this.getDataFromVisualizations(
             data
           );
+        } else {
+          this.privateVisualizations = []
         }
       }
 
