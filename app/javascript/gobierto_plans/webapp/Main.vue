@@ -14,7 +14,7 @@
       </template>
     </Header>
 
-    <ButtonFilters v-if="false" />
+    <ButtonFilters />
 
     <router-view
       :json="json"
@@ -71,6 +71,7 @@ export default {
       }
     } = plan;
 
+    PlansStore.setProjects(projects);
     PlansStore.setPlainItems([...categories, ...projects]);
     PlansStore.setMeta(meta);
     PlansStore.setStatus(status);

@@ -54,6 +54,7 @@ export {
   money,
   date,
   truncate,
+  percent,
   VueDirectivesMixin,
   clickoutside
 };
