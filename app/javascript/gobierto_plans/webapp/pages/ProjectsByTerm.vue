@@ -3,49 +3,65 @@
     <div class="planification-table__header">
       <TableBreadcrumb :groups="groups" />
       <TableColumnsSelector
-        v-clickoutside="hideTableColumnsSelector"
         :columns="selectedColumns"
         @toggle-visibility="toggleVisibility"
       />
     </div>
 
-    <table class="planification-table">
-      <thead>
-        <template v-for="[thId, [name, , thVisibility]] in selectedColumns">
-          <th
-            v-if="thVisibility"
-            :key="thId"
-            class="planification-table__th"
-            @click="handleTableHeaderClick(thId)"
-          >
-            <div class="planification-table__th-content">
-              <template v-if="thId === 'name'">
-                <NumberLabel :level="lastLevel" />
-              </template>
-              <template v-else>
-                {{ name }}
-              </template>
+    <div class="planification-table__wrapper">
+      <div>
+        <table class="planification-table">
+          <thead>
+            <template v-for="[thId, [name, , thVisibility]] in selectedColumns">
+              <th
+                v-if="thVisibility"
+                :key="thId"
+                class="planification-table__th"
+                @click="handleTableHeaderClick(thId)"
+              >
+                <div class="planification-table__th-content">
+                  <template v-if="thId === 'name'">
+                    <NumberLabel :level="lastLevel" />
+                  </template>
+                  <template v-else>
+                    {{ name }}
+                  </template>
 
-              <SortIcon
-                v-if="currentSortColumn === thId"
-                :direction="getSorting(thId)"
-              />
-            </div>
-          </th>
-        </template>
-      </thead>
-      <tbody>
-        <template v-for="{ id, attributes } in projectsSorted">
-          <ProjectsByTermTableRow
-            :key="id"
-            :project-id="id"
-            :marked="currentId === id"
-            :columns="selectedColumns"
-            :attributes="attributes"
-            @show-project="setCurrentProject"
-          />
-        </template>
-      </tbody>
+                  <SortIcon
+                    v-if="currentSortColumn === thId"
+                    :direction="getSorting(thId)"
+                  />
+                </div>
+              </th>
+            </template>
+          </thead>
+          <tbody>
+            <template v-for="{ id, attributes } in projectsSorted">
+              <ProjectsByTermTableRow
+                :key="id"
+                v-slot="{ column }"
+                :marked="currentId === id"
+                :columns="selectedColumns"
+              >
+                <template v-if="column === 'name'">
+                  <div
+                    class="planification-table__td-name"
+                    @click="setCurrentProject(id)"
+                  >
+                    {{ attributes[column] }}
+                  </div>
+                </template>
+                <template v-else-if="column === 'progress'">
+                  {{ attributes[column] | percent }}
+                </template>
+                <template v-else>
+                  {{ attributes[column] }}
+                </template>
+              </ProjectsByTermTableRow>
+            </template>
+          </tbody>
+        </table>
+      </div>
 
       <transition name="fade">
         <section
@@ -55,12 +71,13 @@
         >
           <Project
             :key="currentId"
+            v-clickoutside="hideProject"
             :model="activeNode"
             :options="options"
           />
         </section>
       </transition>
-    </table>
+    </div>
   </div>
 </template>
 
@@ -73,10 +90,13 @@ import Project from "../components/Project";
 import ProjectsByTermTableRow from "../components/ProjectsByTermTableRow";
 import TableBreadcrumb from "../components/TableBreadcrumb";
 import TableColumnsSelector from "../components/TableColumnsSelector";
-import { clickoutside } from "lib/shared"
+import { percent, clickoutside } from "lib/shared"
 
 export default {
   name: "ProjectsByTerm",
+  filters: {
+    percent
+  },
   components: {
     NumberLabel,
     SortIcon,
@@ -110,7 +130,7 @@ export default {
       map: new Map(),
       mapTracker: 1,
       currentSortColumn: null,
-      activeNode: null,
+      activeNode: null
     };
   },
   computed: {
@@ -127,6 +147,16 @@ export default {
     },
     selectedColumns() {
       return this.mapTracker && Array.from(this.map)
+    }
+  },
+  watch: {
+    activeNode(newVal, oldVal) {
+      /**
+       * disable directive in two cases:
+       * 1. there's no former activeNode, i.e. Project component is unmounted
+       * 2. both newVal and oldVal has value, i.e. it's clicking in a different project
+       */
+      this.disableClickOutsideDirective = (oldVal === null || (newVal && oldVal))
     }
   },
   created() {
@@ -195,9 +225,11 @@ export default {
       this.mapTracker += 1;
     },
     hideProject() {
-      // TODO: repasar esto
-      if (this.activeNode) {
+      // If the directive is not disable, we clean the activeNode, otherwise, we activate it
+      if (!this.disableClickOutsideDirective) {
         this.activeNode = null
+      } else {
+        this.disableClickOutsideDirective = false
       }
     },
     hideTableColumnsSelector() {}
