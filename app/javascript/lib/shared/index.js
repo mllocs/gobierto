@@ -29,6 +29,10 @@ import {
   truncate,
   percent
 } from "./modules/vue-filters.js";
+import {
+  VueDirectivesMixin,
+  clickoutside
+} from "./modules/vue-directives.js";
 import { Middleware } from "./modules/middleware.js";
 import "./modules/iFrameCommunication.js";
 
@@ -50,5 +54,6 @@ export {
   money,
   date,
   truncate,
-  percent
+  VueDirectivesMixin,
+  clickoutside
 };

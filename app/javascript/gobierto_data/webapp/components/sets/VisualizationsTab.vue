@@ -23,6 +23,7 @@
         :public-visualizations="publicVisualizations"
         :private-visualizations="privateVisualizations"
         :private-queries="privateQueries"
+        :public-queries="publicQueries"
         :dataset-id="datasetId"
         :is-user-logged="isUserLogged"
         :is-public-loading="isPublicLoading"
@@ -38,6 +39,7 @@
         :viz-input-focus="vizInputFocus"
         :show-private-public-icon-viz="showPrivatePublicIconViz"
         :show-private-viz="showPrivateViz"
+        :show-private="showPrivate"
         @changeViz="showVizElement"
         @emitDelete="deleteHandlerVisualization"
       />
@@ -98,6 +100,10 @@ export default {
       type: Array,
       default: () => []
     },
+    publicQueries: {
+      type: Array,
+      default: () => []
+    },
     isPrivateVizLoading: {
       type: Boolean,
       default: false
@@ -123,6 +129,10 @@ export default {
       default: false
     },
     showPrivateViz: {
+      type: Boolean,
+      default: false
+    },
+    showPrivate: {
       type: Boolean,
       default: false
     }
