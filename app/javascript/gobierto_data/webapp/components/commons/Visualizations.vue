@@ -7,7 +7,7 @@
 <script>
 import perspective from "@finos/perspective";
 import "@finos/perspective-viewer";
-import "@finos/perspective-viewer-hypergrid";
+import "@finos/perspective-viewer-datagrid";
 import "@finos/perspective-viewer-d3fc";
 import "@finos/perspective-viewer/themes/all-themes.css";
 
@@ -110,6 +110,7 @@ export default {
       //Enable save button when user interacts with Perspective columns
       const itemPerspective = document.querySelector('perspective-viewer').shadowRoot
       const rowPerspective = itemPerspective.querySelectorAll("perspective-row");
+
       rowPerspective.forEach(rowMenu => rowMenu.addEventListener('drag', () => this.$emit("showSaving")));
       rowPerspective.forEach(rowMenu => rowMenu.addEventListener('click', () => this.$emit("showSaving")));
     },
