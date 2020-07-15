@@ -78,11 +78,11 @@ export default {
         .sort(({ [id]: termA }, { [id]: termB }) =>
           sort === "up"
             ? typeof termA === "string"
-              ? termA.localeCompare(termB)
-              : termA > termB
+              ? termA.localeCompare(termB, undefined, { numeric: true })
+              : termA > termB ? -1 : 1
             : typeof termA === "string"
-              ? termB.localeCompare(termA)
-              : termA < termB
+              ? termB.localeCompare(termA, undefined, { numeric: true })
+              : termA < termB ? -1 : 1
         );
     }
   },
