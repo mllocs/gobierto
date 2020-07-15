@@ -40,14 +40,14 @@ export default {
       }
     ) {
       if (newId !== oldId) {
-        this.uid = newId
+        this.uid = newId;
         this.setGroups(newId);
       }
     }
   },
   created() {
     const { id } = this.$route.params;
-    this.uid = id
+    this.uid = id;
     this.setGroups(id);
   },
   methods: {
@@ -74,24 +74,35 @@ export default {
       // group by the project by that uid recently created
       const groupedProjects = groupBy(projectsWithUid, "uid");
 
-      this.groups = Object.keys(groupedProjects).map(key => {
+      // helper function to create the array with the required properties
+      const parseProjects = (keys) => keys.map(key => {
         // properties of the key
         const {
-          attributes: { name, slug }
+          id,
+          attributes: { name, slug, level }
         } = vocabulary_terms.find(({ id }) => id === key) || {};
         // items by key
         const children = groupedProjects[key] || [];
         const length = children.length;
         // sum all project's progresses
         const progress = length
-          ? groupedProjects[key].reduce(
-              (acc, { attributes: { progress } = {} }) => acc + progress,
-              0
-            ) / length
+          ? children.reduce((acc, { attributes: { progress } = {} }) => acc + progress, 0) / length
           : 0;
 
-        return { key, name, slug, length, children, progress };
-      });
+        // nested groups ids
+        const nestedGroups = vocabulary_terms.reduce(
+          (acc, { id: nestId, attributes: { term_id } }) => {
+            // only need those inner groups selected
+            if (keys.includes(nestId) && +id === +term_id) {
+              acc.push(nestId)
+            }
+            return acc
+          }, []);
+
+        return { key, name, slug, length, children, progress, level, nestedGroups };
+      })
+
+      this.groups = parseProjects(Object.keys(groupedProjects));
     }
   }
 };

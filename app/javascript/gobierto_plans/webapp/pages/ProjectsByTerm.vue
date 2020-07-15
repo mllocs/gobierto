@@ -10,16 +10,16 @@
 
     <div class="planification-table__wrapper">
       <div>
-        <table class="planification-table">
-          <thead>
-            <template v-for="[id, { name, visibility }] in selectedColumns">
-              <th
-                v-if="visibility"
-                :key="id"
-                class="planification-table__th"
-                @click="handleTableHeaderClick(id)"
-              >
-                <div class="planification-table__th-content">
+        <ul class="planification-table">
+          <li class="planification-table__li">
+            <div class="planification-table__li--content">
+              <template v-for="[id, { name, visibility }] in selectedColumns">
+                <div
+                  v-if="visibility"
+                  :key="id"
+                  class="planification-table__th"
+                  @click="handleTableHeaderClick(id)"
+                >
                   <template v-if="id === 'name'">
                     <NumberLabel :level="lastLevel" />
                   </template>
@@ -32,26 +32,24 @@
                     :direction="getSorting(id)"
                   />
                 </div>
-              </th>
-            </template>
-          </thead>
-          <tbody>
-            <template v-for="{ id, attributes } in projectsSorted">
-              <TableRow
-                :key="id"
-                v-slot="{ column, options }"
-                :marked="currentId === id"
-                :columns="selectedColumns"
-              >
-                <TableCellTemplates
-                  :column="column"
-                  :attributes="{ ...options, id, value: attributes[column] }"
-                  @current-project="setCurrentProject"
-                />
-              </TableRow>
-            </template>
-          </tbody>
-        </table>
+              </template>
+            </div>
+          </li>
+          <template v-for="{ id, attributes } in projectsSorted">
+            <ProjectsByTermTableRow
+              :key="id"
+              v-slot="{ column, options }"
+              :marked="currentId === id"
+              :columns="selectedColumns"
+            >
+              <TableCellTemplates
+                :column="column"
+                :attributes="{ ...options, id, value: attributes[column] }"
+                @current-project="setCurrentProject"
+              />
+            </ProjectsByTermTableRow>
+          </template>
+        </ul>
       </div>
 
       <transition name="fade">
@@ -86,7 +84,7 @@ import { findRecursive } from "../lib/helpers";
 import SortIcon from "../components/SortIcon";
 import NumberLabel from "../components/NumberLabel";
 import Project from "../components/Project";
-import TableRow from "../components/TableRow";
+import ProjectsByTermTableRow from "../components/ProjectsByTermTableRow";
 import TableBreadcrumb from "../components/TableBreadcrumb";
 import TableColumnsSelector from "../components/TableColumnsSelector";
 import TableCellTemplates from "../components/TableCellTemplates";
@@ -100,7 +98,7 @@ export default {
   components: {
     NumberLabel,
     SortIcon,
-    TableRow,
+    ProjectsByTermTableRow,
     Project,
     TableBreadcrumb,
     TableColumnsSelector,
