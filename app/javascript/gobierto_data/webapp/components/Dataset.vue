@@ -65,6 +65,7 @@
         :is-user-logged="isUserLogged"
         :query-input-focus="queryInputFocus"
         :viz-input-focus="vizInputFocus"
+        :reset-private="resetPrivate"
         :show-private-public-icon="showPrivatePublicIcon"
         :show-private-public-icon-viz="showPrivatePublicIconViz"
       />
@@ -96,6 +97,8 @@
         :show-private-public-icon-viz="showPrivatePublicIconViz"
         :show-private="showPrivate"
         :show-private-viz="showPrivateViz"
+        :show-label-edit="showLabelEdit"
+        :reset-private="resetPrivate"
       />
 
       <DownloadsTab
@@ -175,11 +178,10 @@ export default {
       isQueryModified: false,
       isForkPromptVisible: true,
       isVizModified: false,
+      isVizItemModified: false,
       isVizSavingPromptVisible: false,
       showPrivate: false,
       tableName: '',
-      resetQueryDefault: false,
-      revertQuerySaved: false,
       enabledQuerySavedButton: false,
       enabledVizSavedButton: false,
       enabledRevertButton: false,
@@ -200,6 +202,8 @@ export default {
       showPrivatePublicIcon: false,
       showPrivatePublicIconViz: false,
       showPrivateViz: false,
+      showLabelEdit: false,
+      resetPrivate: false,
       labelSummary: I18n.t("gobierto_data.projects.summary") || "",
       labelData: I18n.t("gobierto_data.projects.data") || "",
       labelQueries: I18n.t("gobierto_data.projects.queries") || "",
@@ -239,6 +243,7 @@ export default {
         this.currentVizTab = 0
       } else if (to.name === 'Visualization') {
         this.currentVizTab = 1
+        this.showLabelEdit = true
       }
 
       //Update only the baseTitle of the dataset that is active
@@ -398,6 +403,8 @@ export default {
     this.$root.$on('resetVizEvent', this.resetVizEvent)
     //Show saving dialog visualization
     this.$root.$on('showSavingDialogEvent', this.showSavingDialogEvent)
+    //Show saving dialog visualization tab item
+    this.$root.$on('showSavingDialogEventViz', this.showSavingDialogEventViz)
   },
   deactivated() {
     this.$root.$off("deleteSavedQuery");
@@ -494,9 +501,9 @@ export default {
         params: { queryId }
       } = this.$route;
 
-      const items = this.publicQueries
       //We need to keep this query separate from the editor query
       //When load a saved query we use the queryId to find inside privateQueries or publicQueries
+      const items = !this.showPrivate ? this.publicQueries : this.privateQueries
       const { attributes: { sql: queryRevert } = {} } = items.find(({ id }) => id === queryId) || {}
       //QueryRevert: if the user loads a saved query, there can reset to the initial query or reset to the saved query.
       this.queryRevert = queryRevert
@@ -590,9 +597,6 @@ export default {
       }
 
       this.currentQuery = sql
-
-      this.resetQuery(false)
-      this.revertSavedQuery(false)
     },
     storeRecentQuery() {
       // if the currentQuery does not exist, nor recent, nor in stored queries neither
@@ -839,30 +843,35 @@ export default {
       const [ columns = '' ] = csv.split("\n");
       this.arrayColumnsQuery = columns.split(",");
     },
-    resetQuery(value) {
-      this.resetQueryDefault = value
-      if (value === true) {
-        this.showPrivatePublicIcon = false
-        this.isQuerySavingPromptVisible = false
-        this.currentQuery = `SELECT * FROM ${this.tableName} LIMIT 50`;
-        this.isQueryModified = false
-        this.runCurrentQuery()
-        this.disabledSavedButton()
-        this.disabledStringSavedQuery()
-        this.queryName = null
-        this.disabledForkButton()
-      }
+    resetQuery() {
+      this.isQuerySavingPromptVisible = false
+      this.currentQuery = `SELECT * FROM ${this.tableName} LIMIT 50`;
+      this.isQueryModified = false
+      this.runCurrentQuery()
+      this.disabledSavedButton()
+      this.disabledStringSavedQuery()
+      this.queryName = null
+      this.disabledForkButton()
+      this.showPrivatePublicIcon = false
+      this.showPrivate = false
+      this.resetPrivate = true
     },
-    revertSavedQuery(value) {
-      this.revertQuerySaved = value
-      if (value === true) {
-        this.isQuerySavingPromptVisible = false
-        this.currentQuery = this.queryRevert
-        this.isQueryModified = false
-        this.runCurrentQuery()
-        this.disabledSavedButton()
-        this.disabledStringSavedQuery()
-        this.disabledRevertButton()
+    revertSavedQuery() {
+      this.isQuerySavingPromptVisible = false
+      this.currentQuery = this.queryRevert
+      this.isQueryModified = false
+      this.runCurrentQuery()
+      this.disabledSavedButton()
+      this.disabledStringSavedQuery()
+      this.disabledRevertButton()
+
+      const userId = Number(getUserId());
+      if (this.queryUserId !== userId) {
+        this.showPrivatePublicIcon = false
+        this.enabledForkButton = true
+        this.isForkPromptVisible = true
+      } else {
+        this.showPrivatePublicIcon = true
       }
     },
     activatedSavedButton() {
@@ -876,6 +885,7 @@ export default {
         this.showRevertQuery = true
       }
 
+      this.resetPrivate = false
     },
     disabledSavedButton() {
       this.enabledQuerySavedButton = false
@@ -918,6 +928,8 @@ export default {
         }
       } else if (userId !== 0 && nameComponent === 'Visualization') {
 
+        this.showLabelEdit = true
+
         const objectViz = this.privateVisualizations.find(({ id }) => id === queryId) || {}
         const { privacy_status: privacyStatus } = objectViz
 
@@ -926,6 +938,8 @@ export default {
 
         //Find which viz is loaded
         const { user_id: checkUserId = {} } = items.find(({ id }) => id === queryId) || {}
+
+        this.vizUserId = checkUserId
 
         //Check if the user who loaded the viz is the same user who created the viz
         if (userId !== checkUserId && !this.savingViz) {
@@ -964,6 +978,12 @@ export default {
     },
     eventIsVizModified(value) {
       this.isVizModified = value
+      const userId = Number(getUserId());
+      if (this.vizUserId !== userId) {
+        this.showPrivatePublicIconViz = false
+      } else {
+        this.showPrivatePublicIconViz = true
+      }
     },
     setVizName(vizName) {
       this.vizName = vizName
@@ -1008,6 +1028,12 @@ export default {
       this.showPrivatePublicIconViz = true
       this.isVizSavingPromptVisible = true
       this.isVizSaved = false
+    },
+    showSavingDialogEventViz(value) {
+      this.isVizItemModified = value
+      this.isVizModified = false
+      this.activatedSavedVizButton(value)
+      this.showPrivatePublicIconViz = true
     }
   },
 };
