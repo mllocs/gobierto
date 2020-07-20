@@ -236,6 +236,7 @@ export default {
 
       if (to.path !== from.path) {
         this.isQueryModified = false;
+        this.isVizSaved = false;
         this.setDefaultQuery()
         this.queryOrVizIsNotMine()
         this.disabledSavedButton()
@@ -814,9 +815,9 @@ export default {
       } else {
         // factory method
         ({ status, data: { data: newViz } } = await this.postVisualization({ data }));
+        const { id: saveVizID } = newViz
+        this.vizID = +saveVizID
       }
-      const { id: saveVizID } = newViz
-      this.vizID = +saveVizID
 
       if ([200, 201].includes(status)) {
         this.isVizModified = false
