@@ -65,6 +65,8 @@
         :is-user-logged="isUserLogged"
         :query-input-focus="queryInputFocus"
         :viz-input-focus="vizInputFocus"
+        :viz-name="vizName"
+        :viz-id="vizID"
         :reset-private="resetPrivate"
         :show-private-public-icon="showPrivatePublicIcon"
         :show-private-public-icon-viz="showPrivatePublicIconViz"
@@ -196,6 +198,7 @@ export default {
       queryInputFocus : false,
       isPublicVizLoading: false,
       vizName: null,
+      vizID: null,
       vizInputFocus: false,
       savingViz: false,
       savingQuery: false,
@@ -241,6 +244,7 @@ export default {
 
       if (to.name === 'Dataset') {
         this.currentVizTab = 0
+        this.vizName = null
       } else if (to.name === 'Visualization') {
         this.currentVizTab = 1
         this.showLabelEdit = true
@@ -752,7 +756,8 @@ export default {
       const {
         params: {
           queryId
-        }
+        },
+        name: nameComponent
       } = this.$route;
 
       let vizIdFromRoute = +queryId
@@ -768,6 +773,7 @@ export default {
       }
 
       const { name, privacy, vizID, user, queryViz } = opts;
+      this.vizName = name
 
       const userId = Number(getUserId());
 
@@ -809,6 +815,8 @@ export default {
         // factory method
         ({ status, data: { data: newViz } } = await this.postVisualization({ data }));
       }
+      const { id: saveVizID } = newViz
+      this.vizID = +saveVizID
 
       if ([200, 201].includes(status)) {
         this.isVizModified = false
@@ -817,7 +825,8 @@ export default {
         this.enabledVizSavedButton = false
 
         /* Check if the user saved a viz from another user, we need to wait to obtain the private visualizations to avoid error because it's possible which this Visualization is the first Visualization which user save */
-        if (user !== userId || newViz) {
+        /*Update URL only when saved a query from editor or a viz from Visualizations tabs*/
+        if ((user !== userId || newViz) && nameComponent === 'Visualization') {
           this.updateURL(newViz)
         }
         this.getAllVisualizations()
@@ -834,13 +843,7 @@ export default {
       //Changes the path depending on if we save a query or viz.
       const pathQueryOrViz = this.savingViz ? 'v' : 'q'
 
-      /*Don't updates the URL if the component is Editor, only replace and don't reload, because in the editor we've two options, saved a query or viz, if the user saves a viz, and we update the URL, the browser reloads, and the user goes to visualization tab, and this behavior is too hacky.*/
-      //https://developer.mozilla.org/en-US/docs/Web/API/History/pushState
-      history.pushState(
-        {},
-        null,
-        `${location.origin}/datos/${slugDataset}/${pathQueryOrViz}/${newId}`
-      )
+      this.$router.push(`/datos/${slugDataset}/${pathQueryOrViz}/${newId}`)
 
       this.enabledForkButton = false
       this.queryInputFocus = false
@@ -985,13 +988,6 @@ export default {
     },
     eventIsVizModified(value) {
       this.isVizModified = value
-      const userId = Number(getUserId());
-      //Don't show privatePublicIcon when load a viz from other user
-      if (this.vizUserId !== userId && this.enabledForkButton) {
-        this.showPrivatePublicIconViz = false
-      } else {
-        this.showPrivatePublicIconViz = true
-      }
     },
     setVizName(vizName) {
       this.vizName = vizName
@@ -1029,6 +1025,7 @@ export default {
     resetVizEvent() {
       this.enabledVizSavedButton = true
       this.isVizSaved = false
+      this.vizName = null
     },
     showSavingDialogEvent() {
       this.enabledVizSavedButton = true
