@@ -1214,6 +1214,7 @@
     margin: 0;
   }
 
+
   &-visualization-query-container {
     letter-spacing: 0;
     width: 100%;
@@ -1229,6 +1230,16 @@
     }
   }
 
+  &-landing-visualizations {
+    .gobierto-data-summary-header-description {
+      margin-bottom: 1rem;
+
+      p {
+        margin: 0;
+        max-width: 30%;
+      }
+    }
+  }
 }
 
 perspective-viewer regular-table {
