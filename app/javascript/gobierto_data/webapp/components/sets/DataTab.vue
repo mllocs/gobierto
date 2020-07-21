@@ -31,6 +31,7 @@
       <SQLEditorResults
         v-if="items.length"
         :array-formats="arrayFormats"
+        :array-columns="arrayColumns"
         :array-columns-query="arrayColumnsQuery"
         :enabled-viz-saved-button="enabledVizSavedButton"
         :is-viz-modified="isVizModified"

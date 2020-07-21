@@ -26,6 +26,10 @@ export default {
       type: Array,
       default: () => []
     },
+    arrayColumns: {
+      type: Object,
+      default: () => {}
+    },
     config: {
       type: Object,
       default: () => {}
@@ -83,7 +87,28 @@ export default {
       this.viewer.setAttribute('plugin', this.typeChart)
       this.viewer.clear();
 
-      this.viewer.load(data);
+      const transformColumns = this.arrayColumns
+
+      Object.keys(transformColumns).forEach((key) => {
+        if (transformColumns[key] === 'hstore') {
+          transformColumns[key] = 'string'
+        } else if (transformColumns[key] === 'jsonb') {
+          transformColumns[key] = 'string'
+        } else if (transformColumns[key] === 'decimal') {
+          transformColumns[key] = 'float'
+        } else if (transformColumns[key] === 'text') {
+          transformColumns[key] = 'string'
+        } else if (transformColumns[key] === 'inet') {
+          transformColumns[key] = 'integer'
+        }
+      });
+
+      let schema = transformColumns
+
+      const loadSchema = this.viewer.worker.table(schema);
+      this.viewer.load(loadSchema)
+      this.viewer.update(data)
+
       if (this.config) {
         this.viewer.restore(this.config);
         //Perspective can't restore row_pivots, column_pivots and computed_columns, so we need to check if visualization config contains some of these values, if contain them we've need to include these values to viewer

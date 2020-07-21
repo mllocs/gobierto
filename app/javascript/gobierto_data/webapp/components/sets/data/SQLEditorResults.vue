@@ -68,6 +68,7 @@
         v-if="items"
         ref="viewer"
         :items="items"
+        :array-columns="arrayColumns"
         :type-chart="typeChart"
         :reset-config-viz="resetConfigViz"
         :array-columns-query="arrayColumnsQuery"
@@ -99,6 +100,10 @@ export default {
     arrayColumnsQuery: {
       type: Array,
       default: () => []
+    },
+    arrayColumns: {
+      type: Object,
+      default: () => {}
     },
     items: {
       type: String,

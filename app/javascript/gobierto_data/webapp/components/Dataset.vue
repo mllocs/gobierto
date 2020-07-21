@@ -101,6 +101,7 @@
         :show-private-viz="showPrivateViz"
         :show-label-edit="showLabelEdit"
         :reset-private="resetPrivate"
+        :array-columns="arrayColumns"
       />
 
       <DownloadsTab

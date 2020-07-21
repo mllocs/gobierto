@@ -150,6 +150,10 @@ export default {
     resetPrivate: {
       type: Boolean,
       default: false
+    },
+    arrayColumns: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
