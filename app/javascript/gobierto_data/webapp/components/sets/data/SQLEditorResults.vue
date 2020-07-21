@@ -68,7 +68,7 @@
         v-if="items"
         ref="viewer"
         :items="items"
-        :array-columns="arrayColumns"
+        :object-columns="objectColumns"
         :type-chart="typeChart"
         :reset-config-viz="resetConfigViz"
         :array-columns-query="arrayColumnsQuery"
@@ -101,7 +101,7 @@ export default {
       type: Array,
       default: () => []
     },
-    arrayColumns: {
+    objectColumns: {
       type: Object,
       default: () => {}
     },

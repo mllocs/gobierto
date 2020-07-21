@@ -43,6 +43,7 @@
         :show-label-edit="showLabelEdit"
         :is-viz-item-modified="isVizItemModified"
         :reset-private="resetPrivate"
+        :object-columns="objectColumns"
         @changeViz="showVizElement"
         @emitDelete="deleteHandlerVisualization"
       />
@@ -151,7 +152,7 @@ export default {
       type: Boolean,
       default: false
     },
-    arrayColumns: {
+    objectColumns: {
       type: Object,
       default: () => {}
     }

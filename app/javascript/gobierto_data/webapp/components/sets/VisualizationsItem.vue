@@ -54,6 +54,7 @@
           ref="viewer"
           :items="items"
           :config="config"
+          :object-columns="objectColumns"
           @showSaving="showSavingDialog"
           @selectedChart="typeChart = $event"
         />
@@ -146,6 +147,10 @@ export default {
     resetPrivate: {
       type: Boolean,
       default: false
+    },
+    objectColumns: {
+      type: Object,
+      default: () => {}
     }
   },
   data() {
