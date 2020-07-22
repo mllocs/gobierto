@@ -7,6 +7,7 @@ module GobiertoCommon
     included do
       include AlgoliaSearch
       include ActionView::Helpers::SanitizeHelper
+      include PgSearch::Model
 
       def self.search_index_name
         "#{APP_CONFIG["site"]["name"]}_#{Rails.env}_#{name}"
@@ -39,6 +40,28 @@ module GobiertoCommon
       attribute_summary = translations_hash.values.join(" ").tr("\n\r", " ").gsub(/\s+/, " ")
       attribute_summary = strip_tags(attribute_summary)
       attribute_summary[0..9300]
+    end
+
+    # pg_search
+
+    def truncated_translations(attribute, **opts)
+      return localized_truncated_plain_attribute(attribute, opts) unless (translations_hash = try("#{attribute}_translations")).present?
+
+      translations_hash.transform_values { |value| clean_text(value, **opts) }
+    end
+
+    def localized_truncated_plain_attribute(attribute, **opts)
+      return {} unless respond_to?(attribute)
+
+      { I18n.locale => clean_text(send(attribute), **opts) }
+    end
+
+    def clean_text(text, limit: 1000, strip_tags: true)
+      (strip_tags ? strip_tags(text) : text)&.truncate(limit)
+    end
+
+    def searchable?
+      !try(:archived?) && try(:active?)
     end
   end
 end
