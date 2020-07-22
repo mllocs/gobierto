@@ -22,17 +22,17 @@
 
       <DatasetNav :active-dataset-tab="activeDatasetTab" />
 
-    <!-- Only is mounted where there are attributes -->
-    <SummaryTab
-      v-if="activeDatasetTab === 0 && attributes"
-      :private-queries="privateQueries"
-      :public-queries="publicQueries"
-      :array-formats="arrayFormats"
-      :object-columns="objectColumns"
-      :resources-list="resourcesList"
-      :dataset-attributes="attributes"
-      :is-user-logged="isUserLogged"
-    />
+      <!-- Only is mounted where there are attributes -->
+      <SummaryTab
+        v-if="activeDatasetTab === 0 && attributes"
+        :private-queries="privateQueries"
+        :public-queries="publicQueries"
+        :array-formats="arrayFormats"
+        :object-columns="objectColumns"
+        :resources-list="resourcesList"
+        :dataset-attributes="attributes"
+        :is-user-logged="isUserLogged"
+      />
 
       <DataTab
         v-else-if="activeDatasetTab === 1"
@@ -85,6 +85,7 @@
         :is-user-logged="isUserLogged"
         :is-viz-saving-prompt-visible="isVizSavingPromptVisible"
         :is-viz-modified="isVizModified"
+        :is-viz-item-modified="isVizItemModified"
         :is-viz-saved="isVizSaved"
         :is-private-viz-loading="isPrivateVizLoading"
         :is-public-viz-loading="isPublicVizLoading"
