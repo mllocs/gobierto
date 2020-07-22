@@ -6,33 +6,30 @@
           ref="savingDialogVizElement"
           :value="name"
           :placeholder="labelVisName"
-          :label-save="labelSaveViz"
           :label-saved="labelSavedVisualization"
           :label-modified="labelModifiedVizualition"
           :is-viz-saving-prompt-visible="isVizSavingPromptVisible"
           :is-viz-modified="isVizModified"
           :is-viz-saved="isVizSaved"
+          :is-viz-item-modified="isVizItemModified"
           :is-user-logged="isUserLogged"
           :enabled-fork-viz-button="enabledForkVizButton"
           :enabled-viz-saved-button="enabledVizSavedButton"
           :is-query-saving-prompt-visible="isQuerySavingPromptVisible"
           :show-private-public-icon-viz="showPrivatePublicIconViz"
           :show-private-viz="showPrivateViz"
+          :show-label-edit="showLabelEdit"
+          :reset-private="resetPrivate"
           @save="onSaveEventHandler"
           @keyDownInput="updateVizName"
           @handlerFork="handlerForkViz"
           @isPrivateChecked="isPrivateChecked"
-        />
-        <Button
-          :text="labelEdit"
-          class="btn-sql-editor btn-sql-revert-query"
-          icon="chart-area"
-          background="#fff"
-          @click.native="showChart"
+          @showToggleConfig="showPromptSaveViz"
+          @handlerRevertViz="hidePromptSaveViz"
         />
       </div>
       <div
-        v-if="queryID"
+        v-if="queryName"
         class="gobierto-data-visualization-query-container"
       >
         <span class="gobierto-data-summary-queries-panel-title">{{ labelQuery }}:</span>
@@ -60,15 +57,13 @@
 <script>
 import Visualizations from "./../commons/Visualizations.vue";
 import SavingDialog from "./../commons/SavingDialog.vue";
-import Button from "./../commons/Button.vue";
 import { getUserId } from "./../../../lib/helpers";
 
 export default {
   name: "VisualizationsItem",
   components: {
     Visualizations,
-    SavingDialog,
-    Button
+    SavingDialog
   },
   props: {
     datasetId: {
@@ -131,6 +126,18 @@ export default {
       type: Boolean,
       default: false
     },
+    showLabelEdit: {
+      type: Boolean,
+      default: false
+    },
+    isVizItemModified: {
+      type: Boolean,
+      default: false
+    },
+    resetPrivate: {
+      type: Boolean,
+      default: false
+    },
     objectColumns: {
       type: Object,
       default: () => {}
@@ -139,8 +146,6 @@ export default {
   data() {
     return {
       labelVisName: I18n.t('gobierto_data.projects.visName') || "",
-      labelEdit: I18n.t('gobierto_data.projects.edit') || "",
-      labelSaveViz: I18n.t('gobierto_data.projects.saveViz') || "",
       labelVisualize: I18n.t('gobierto_data.projects.visualize') || "",
       labelDashboard: I18n.t('gobierto_data.projects.dashboards') || "",
       labelSavedVisualization: I18n.t("gobierto_data.projects.savedVisualization") || "",
@@ -166,8 +171,6 @@ export default {
     }
   },
   created() {
-    this.$root.$emit("isVizModified", false);
-    this.$root.$emit('enableSavedVizButton', false)
     const userId = getUserId()
     this.getDataVisualization(this.publicVisualizations);
     //Only getPrivate if user load a PrivateViz
@@ -191,6 +194,7 @@ export default {
       const config = this.$refs.viewer.getConfig()
 
       this.$root.$emit("storeCurrentVisualization", config, opts);
+      this.hidePromptSaveViz()
     },
     updateVizName(value) {
       const {
@@ -198,10 +202,6 @@ export default {
       } = value;
       this.labelValue = vizName
       this.$root.$emit('updateVizName')
-    },
-    showChart() {
-      this.$root.$emit('showSavedVizString', false)
-      this.$refs.viewer.toggleConfigPerspective();
     },
     showSavingDialog() {
       this.showVisualize = false
@@ -228,7 +228,7 @@ export default {
       } = objectViz
 
       //Find the query associated to the visualization
-      const itemQueries = this.showPrivate ? this.privateQueries : this.publicQueries
+      const itemQueries = this.showPrivateViz ? this.privateQueries : this.publicQueries
       const { attributes: { name: queryName } = {} } = itemQueries.find(({ id }) => id == queryID) || {}
 
       this.vizID = vizID
@@ -246,10 +246,22 @@ export default {
         this.$refs.savingDialogVizElement.inputSelect()
       });
       this.$root.$emit('enabledForkVizButton', false)
+      this.$refs.viewer.toggleConfigPerspective();
+      this.$root.$emit('showSavingDialogEventViz', true)
     },
     isPrivateChecked() {
-      this.$root.$emit('enableSavedVizButton', true)
-    }
+      this.$root.$emit('isVizModified', true)
+    },
+    showPromptSaveViz() {
+      this.$refs.viewer.toggleConfigPerspective();
+      this.$root.$emit('showSavingDialogEventViz', true)
+    },
+    hidePromptSaveViz() {
+      this.$refs.viewer.toggleConfigPerspective();
+      this.$root.$emit('showSavingDialogEventViz', false)
+      this.$root.$emit('enableSavedVizButton', false)
+      this.$root.$emit("isVizModified", false);
+    },
   }
 };
 </script>

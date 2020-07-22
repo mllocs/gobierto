@@ -27,6 +27,9 @@
         :show-private-public-icon-viz="showPrivatePublicIconViz"
         :show-private-viz="showPrivateViz"
         :show-private="showPrivate"
+        :show-label-edit="showLabelEdit"
+        :is-viz-item-modified="isVizItemModified"
+        :reset-private="resetPrivate"
         :object-columns="objectColumns"
         @changeViz="showVizElement"
         @emitDelete="deleteHandlerVisualization"
@@ -124,6 +127,18 @@ export default {
       type: Boolean,
       default: false
     },
+    showLabelEdit: {
+      type: Boolean,
+      default: false
+    },
+    isVizItemModified: {
+      type: Boolean,
+      default: false
+    },
+    resetPrivate: {
+      type: Boolean,
+      default: false
+    },
     objectColumns: {
       type: Object,
       default: () => {}
@@ -151,6 +166,7 @@ export default {
         this.$root.$emit("isVizModified", false);
         this.$root.$emit("showSavedVizString", false);
         this.$root.$emit('enabledForkVizButton', false)
+        this.$root.$emit('showSavingDialogEventViz', false)
       }
     }
   },
