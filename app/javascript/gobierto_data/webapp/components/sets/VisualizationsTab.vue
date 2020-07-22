@@ -43,6 +43,8 @@
         :show-label-edit="showLabelEdit"
         :is-viz-item-modified="isVizItemModified"
         :reset-private="resetPrivate"
+        :viz-id="vizId"
+        :user-save-viz="userSaveViz"
         :object-columns="objectColumns"
         @changeViz="showVizElement"
         @emitDelete="deleteHandlerVisualization"
@@ -152,6 +154,14 @@ export default {
       type: Boolean,
       default: false
     },
+    vizId: {
+      type: Number,
+      default: 0
+    },
+    userSaveViz: {
+      type: Number,
+      default: 0
+    },
     objectColumns: {
       type: Object,
       default: () => {}
@@ -178,14 +188,6 @@ export default {
     currentVizTab(newValue) {
       if (newValue === 0) {
         this.currentVizComponent = COMPONENTS[newValue];
-      }
-    },
-    $route(to, from) {
-      if (to.path !== from.path) {
-        this.$root.$emit("isVizModified", false);
-        this.$root.$emit("showSavedVizString", false);
-        this.$root.$emit('enabledForkVizButton', false)
-        this.$root.$emit('showSavingDialogEventViz', false)
       }
     }
   },
