@@ -8,6 +8,7 @@
         lines="5"
       />
     </template>
+
     <template v-else>
       <div class="pure-g">
         <div class="pure-u-1-2">
@@ -39,7 +40,7 @@
         :private-queries="privateQueries"
         :public-queries="publicQueries"
         :recent-queries="recentQueriesFiltered"
-        :array-columns="arrayColumns"
+        :object-columns="objectColumns"
         :array-formats="arrayFormats"
         :array-columns-query="arrayColumnsQuery"
         :items="items"
@@ -107,11 +108,12 @@
         :object-columns="objectColumns"
       />
 
-    <DownloadsTab
-      v-else-if="activeDatasetTab === 4"
-      :array-formats="arrayFormats"
-      :resources-list="resourcesList"
-    />
+      <DownloadsTab
+        v-else-if="activeDatasetTab === 4"
+        :array-formats="arrayFormats"
+        :resources-list="resourcesList"
+      />
+    </template>
   </div>
 </template>
 
