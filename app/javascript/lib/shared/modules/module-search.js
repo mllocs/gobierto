@@ -16,10 +16,10 @@ $(document).on('turbolinks:load', function() {
   }
 
   function itemUpdatedAt(d){
-    if(d['updated_at'] === undefined)
+    if(d['searchable_updated_at'] == null)
       return;
 
-    return I18n.t("layouts.search.updated") + ": " + I18n.l("date.formats.short", d['updated_at']);
+    return I18n.t("layouts.search.updated") + ": " + I18n.l("date.formats.short", d['searchable_updated_at']);
   }
 
   function itemDescription(d){
@@ -51,7 +51,7 @@ $(document).on('turbolinks:load', function() {
       case 'GobiertoCms::Page':
         return I18n.t("layouts.search.page_item");
       case 'GobiertoBudgets::BudgetLine':
-        if (d['kind'] === 'I') {
+        if (d["meta"] != null && d['meta']['kind'] === 'I') {
           return I18n.t("layouts.search.budget_line_item_income");
         } else {
           return I18n.t("layouts.search.budget_line_item_expense");
@@ -78,7 +78,7 @@ $(document).on('turbolinks:load', function() {
     params: window.searchClient === undefined ?
       {} :
       {
-        request:
+        filters:
           {
             searchable_type: window.searchClient.searchable_types
           }
