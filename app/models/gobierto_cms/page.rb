@@ -27,18 +27,15 @@ module GobiertoCms
           site_id: item.site_id,
           title_translations: item.truncated_translations(:title),
           resource_path: item.resource_path,
-          searchable_updated_at: item.updated_at
+          searchable_updated_at: item.updated_at,
+          meta: {
+            collection_id: item.collection_id,
+            collection_title_translations: item.collection&.title_translations
+          }
         }
       },
       if: :searchable?
     )
-
-    algoliasearch_gobierto do
-      attribute :site_id, :updated_at, :title_en, :title_es, :title_ca, :searchable_body, :collection_id
-      searchableAttributes %w(title_en title_es title_ca searchable_body)
-      attributesForFaceting [:site_id]
-      add_attribute :resource_path, :class_name
-    end
 
     translates :title, :body, :body_source
 

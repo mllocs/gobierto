@@ -35,17 +35,15 @@ module GobiertoAttachments
           title_translations: item.truncated_translations(:name),
           description_translations: item.truncated_translations(:description),
           resource_path: item.human_readable_url,
-          searchable_updated_at: item.updated_at
+          searchable_updated_at: item.updated_at,
+          meta: {
+            url: item.url,
+            file_size: item.file_size
+          }
         }
       },
       if: :searchable?
     )
-
-    algoliasearch_gobierto do
-      attribute :site_id, :name, :description, :file_name, :url, :file_size
-      searchableAttributes %w(name description file_name)
-      attributesForFaceting [:site_id]
-    end
 
     attr_accessor :file
 
