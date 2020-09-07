@@ -54,7 +54,7 @@ gem "sidekiq-monitor-stats"
 gem "aws-sdk-s3", "~> 1"
 
 # AWS SES client
-gem "aws-ses", "~> 0.6.0"
+gem "aws-ses", "~> 0.7.0"
 
 # Calendar view component
 gem "simple_calendar", "~> 2.2"
@@ -123,7 +123,7 @@ group :test do
   gem "capybara-email"
   gem "codecov", "~> 0.2.0", require: false
   gem "launchy"
-  gem "minitest", "5.14.1"
+  gem "minitest", "5.14.2"
   gem "minitest-reporters"
   gem "minitest-retry"
   gem "minitest-stub_any_instance"
