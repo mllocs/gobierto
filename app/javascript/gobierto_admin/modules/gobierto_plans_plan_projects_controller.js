@@ -6,7 +6,7 @@ window.GobiertoAdmin.GobiertoPlansPlanProjectsController = (function() {
   };
 
   function _handleSubmitChangeBehaviors() {
-    $(document).on("change", "select[data-behavior]", function(e) {
+    $(document).on("change", "select[data-behavior]", function(x) {
       if ($(this).data("behavior") === "submit_change") {
         $("form#edit_projects_filter").submit();
       }
