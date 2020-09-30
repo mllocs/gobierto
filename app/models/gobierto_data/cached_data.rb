@@ -14,7 +14,7 @@ module GobiertoData
     def initialize(resource)
       @resource = resource
       @resource_path = "#{CACHED_DATA_BASE_PATH}#{resource.class.name.underscore}/#{resource.id}"
-      @resource_basename = resource.is_a?(GobiertoData::Dataset)? ? resource.slug : resource.id
+      @resource_basename = resource.is_a?(GobiertoData::Dataset) ? resource.slug : resource.id
       @local = ::GobiertoCommon::FileUploadService.new(file_name: resource_path).adapter.is_a? ::FileUploader::Local
     end
 
