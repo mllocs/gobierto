@@ -1262,6 +1262,13 @@
   }
 }
 
+.gobierto-vue-dropdown--content {
+  .gobierto-data-sets-nav--tab-container {
+    padding: 1rem;
+    padding-top: 0;
+  }
+}
+
 perspective-viewer regular-table {
   overflow: scroll;
   -ms-overflow-style: none;
